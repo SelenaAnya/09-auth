@@ -1,22 +1,73 @@
-<main className={css.mainContent}>
-    <h1 className={css.formTitle}>Sign up</h1>
-    <form className={css.form}>
-        <div className={css.formGroup}>
-            <label htmlFor="email">Email</label>
-            <input id="email" type="email" name="email" className={css.input} required />
-        </div>
+'use client';
 
-        <div className={css.formGroup}>
-            <label htmlFor="password">Password</label>
-            <input id="password" type="password" name="password" className={css.input} required />
-        </div>
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/lib/store/authStore';
+import { clientApi } from '@/lib/api/clientApi';
+import css from './page.module.css';
 
-        <div className={css.actions}>
-            <button type="submit" className={css.submitButton}>
-                Register
-            </button>
-        </div>
+export default function SignUpPage() {
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const { setUser } = useAuthStore();
+    const router = useRouter();
 
-        <p className={css.error}>Error</p>
-    </form>
-</main>
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError('');
+        setIsLoading(true);
+
+        const formData = new FormData(e.currentTarget);
+        const email = formData.get('email') as string;
+        const password = formData.get('password') as string;
+
+        try {
+            const user = await clientApi.register({ email, password });
+            setUser(user);
+            router.push('/profile');
+        } catch (err: any) {
+            setError(err.response?.data?.message || 'Registration failed');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <main className={css.mainContent}>
+            <h1 className={css.formTitle}>Sign up</h1>
+            <form className={css.form} onSubmit={handleSubmit}>
+                <div className={css.formGroup}>
+                    <label htmlFor="email">Email</label>
+                    <input
+                        id="email"
+                        type="email"
+                        name="email"
+                        className={css.input}
+                        required
+                        disabled={isLoading}
+                    />
+                </div>
+
+                <div className={css.formGroup}>
+                    <label htmlFor="password">Password</label>
+                    <input
+                        id="password"
+                        type="password"
+                        name="password"
+                        className={css.input}
+                        required
+                        disabled={isLoading}
+                    />
+                </div>
+
+                <div className={css.actions}>
+                    <button type="submit" className={css.submitButton} disabled={isLoading}>
+                        {isLoading ? 'Registering...' : 'Register'}
+                    </button>
+                </div>
+
+                {error && <p className={css.error}>{error}</p>}
+            </form>
+        </main>
+    );
+}

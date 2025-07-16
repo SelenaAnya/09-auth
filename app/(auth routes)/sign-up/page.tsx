@@ -1,34 +1,33 @@
-'use client';
+// сторінку для реєстрації нового користувача
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store/authStore';
-import { clientApi } from '@/lib/api/clientApi';
-import css from './page.module.css';
+import { useRouter } from "next/navigation";
+import css from "./SignUpPage.module.css";
+import { useState } from "react";
 
-export default function SignUpPage() {
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const { setUser } = useAuthStore();
+import { registerUser } from "@/lib/api/clientApi";
+import { useAuth } from "@/lib/store/authStore";
+
+export default function SignUP() {
     const router = useRouter();
+    const [errorMessage, setErrorMessage] = useState("");
+    const setUser = useAuth((state) => state.setUser);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setError('');
-        setIsLoading(true);
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
 
-        const formData = new FormData(e.currentTarget);
-        const email = formData.get('email') as string;
-        const password = formData.get('password') as string;
+        const formData = new FormData(event.currentTarget);
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
 
         try {
-            const user = await clientApi.register({ email, password });
+            const user = await registerUser({ email, password });
             setUser(user);
-            router.push('/profile');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Registration failed');
-        } finally {
-            setIsLoading(false);
+            router.push("/profile");
+        } catch {
+            setErrorMessage(
+                "Registration failed. The account may already exist or an error occurred."
+            );
         }
     };
 
@@ -44,7 +43,6 @@ export default function SignUpPage() {
                         name="email"
                         className={css.input}
                         required
-                        disabled={isLoading}
                     />
                 </div>
 
@@ -56,17 +54,16 @@ export default function SignUpPage() {
                         name="password"
                         className={css.input}
                         required
-                        disabled={isLoading}
                     />
                 </div>
 
                 <div className={css.actions}>
-                    <button type="submit" className={css.submitButton} disabled={isLoading}>
-                        {isLoading ? 'Registering...' : 'Register'}
+                    <button type="submit" className={css.submitButton}>
+                        Register
                     </button>
                 </div>
 
-                {error && <p className={css.error}>{error}</p>}
+                <p className={css.error}>{errorMessage}</p>
             </form>
         </main>
     );

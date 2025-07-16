@@ -2,7 +2,7 @@
 
 import nextServer from "./api";
 import { NewNoteData, Note } from "@/types/note";
-import { AuthData, UserReg, UserLog } from "@/types/user";
+import { AuthData, UserRegister, UserLogin } from "@/types/user";
 
 export interface FetchNoteService {
     notes: Note[];
@@ -41,13 +41,13 @@ export const deleteNote = async (noteId: string): Promise<Note> => {
     return res.data;
 };
 
-export const registerUser = async (data: AuthData): Promise<UserReg> => {
-    const res = await nextServer.post<UserReg>("/auth/register", data);
+export const registerUser = async (data: AuthData): Promise<UserRegister> => {
+    const res = await nextServer.post<UserRegister>("/auth/register", data);
     return res.data;
 };
 
-export const loginUser = async (data: AuthData): Promise<UserLog> => {
-    const res = await nextServer.post<UserLog>("/auth/login", data);
+export const loginUser = async (data: AuthData): Promise<UserLogin> => {
+    const res = await nextServer.post<UserLogin>("/auth/login", data);
     return res.data;
 };
 
@@ -59,8 +59,8 @@ export const checkSession = async (): Promise<CheckSessionRes> => {
     return res.data;
 };
 
-export const getMe = async (): Promise<UserLog> => {
-    const res = await nextServer.get<UserLog>("/users/me");
+export const getMe = async (): Promise<UserLogin> => {
+    const res = await nextServer.get<UserLogin>("/users/me");
     return res.data;
 };
 
@@ -70,7 +70,7 @@ export const logOut = async () => {
 
 export const updateUser = async (data: {
     username: string;
-}): Promise<UserLog> => {
-    const res = await nextServer.patch<UserLog>("/users/me", data);
+}): Promise<UserLogin> => {
+    const res = await nextServer.patch<UserLogin>("/users/me", data);
     return res.data;
 };

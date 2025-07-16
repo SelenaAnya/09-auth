@@ -1,40 +1,32 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store/authStore';
-import { clientApi } from '@/lib/api/clientApi';
-import css from './page.module.css';
+import { useRouter } from "next/navigation";
+import css from "./SignInPage.module.css";
+import { useState } from "react";
+import { loginUser } from "@/lib/api/clientApi";
+import { useAuth } from "@/lib/store/authStore";
 
-export default function SignInPage() {
-    const [error, setError] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
-    const { setUser } = useAuthStore();
+export default function SignIn() {
+    const [errorMessage, setErrorMessage] = useState("");
     const router = useRouter();
+    const setUser = useAuth((state) => state.setUser);
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setError('');
-        setIsLoading(true);
-
-        const formData = new FormData(e.currentTarget);
-        const email = formData.get('email') as string;
-        const password = formData.get('password') as string;
+    const handleLogin = async (formData: FormData) => {
+        const email = formData.get("email") as string;
+        const password = formData.get("password") as string;
 
         try {
-            const user = await clientApi.login({ email, password });
+            const user = await loginUser({ email, password });
             setUser(user);
-            router.push('/profile');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed');
-        } finally {
-            setIsLoading(false);
+            router.push("/profile");
+        } catch {
+            setErrorMessage("The login or password is incorrect.");
         }
     };
 
     return (
         <main className={css.mainContent}>
-            <form className={css.form} onSubmit={handleSubmit}>
+            <form action={handleLogin} className={css.form}>
                 <h1 className={css.formTitle}>Sign in</h1>
 
                 <div className={css.formGroup}>
@@ -45,7 +37,6 @@ export default function SignInPage() {
                         name="email"
                         className={css.input}
                         required
-                        disabled={isLoading}
                     />
                 </div>
 
@@ -57,17 +48,16 @@ export default function SignInPage() {
                         name="password"
                         className={css.input}
                         required
-                        disabled={isLoading}
                     />
                 </div>
 
                 <div className={css.actions}>
-                    <button type="submit" className={css.submitButton} disabled={isLoading}>
-                        {isLoading ? 'Logging in...' : 'Log in'}
+                    <button type="submit" className={css.submitButton}>
+                        Log in
                     </button>
                 </div>
 
-                {error && <p className={css.error}>{error}</p>}
+                <p className={css.error}>{errorMessage}</p>
             </form>
         </main>
     );

@@ -1,16 +1,11 @@
-export interface User {
+export interface AuthData {
     id: string;
     email: string;
     username: string;
     avatar?: string;
 }
 
-export interface LoginCredentials {
-    email: string;
-    password: string;
-}
-
-export interface RegisterCredentials {
+export interface UserLog {
     email: string;
     password: string;
 }
@@ -18,3 +13,9 @@ export interface RegisterCredentials {
 export interface UpdateUserData {
     username: string;
 }
+
+export interface UserReg {
+    email: string;
+    password: string;
+}
+

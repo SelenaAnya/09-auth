@@ -1,65 +1,76 @@
-import { FetchNotesProps, NewNote, Note } from "@/types/note";
-import { NewUser, UpdateUserProps, User, UserRes } from "@/types/user";
-import { nextServer } from "./api";
-import { CheckSessionResp } from "./serverApi";
+"use client";
 
-export async function fetchNotes(
-    search: string,
-    page: number,
+import nextServer from "./api";
+import { NewNoteData, Note } from "@/types/note";
+import { AuthData, UserReg, UserLog } from "@/types/user";
+
+export interface FetchNoteService {
+    notes: Note[];
+    totalPages: number;
+}
+
+export const fetchNotes = async (
+    page = 1,
+    query = "",
+    perPage = 12,
     tag?: string
-): Promise<FetchNotesProps> {
-    const res = await nextServer.get<FetchNotesProps>("/notes", {
-        params: {
-            ...(search && { search }),
-            page,
-            perPage: 12,
-            ...(tag && { tag }),
-        },
+): Promise<FetchNoteService> => {
+    const params: Record<string, string | number> = { page, perPage };
+    if (query) params.search = query;
+    if (tag && tag !== `All`) params.tag = tag;
+
+    const res = await nextServer.get<FetchNoteService>(`/notes`, {
+        params,
     });
-
     return res.data;
-}
+};
 
-export async function createNote(newNote: NewNote): Promise<Note> {
-    const res = await nextServer.post<Note>("/notes", newNote);
-    return res.data;
-}
-
-export async function deleteNote(id: string): Promise<Note> {
-    const res = await nextServer.delete<Note>(`/notes/${id}`);
-    return res.data;
-}
-
-export async function fetchNoteById(id: string): Promise<Note> {
+export const fetchNoteById = async (id: string): Promise<Note> => {
     const res = await nextServer.get<Note>(`/notes/${id}`);
-    return res.data;
-}
 
-export async function register(newUser: NewUser): Promise<User> {
-    const res = await nextServer.post<User>("/auth/register", newUser);
     return res.data;
-}
+};
 
-export async function login(newUser: NewUser): Promise<UserRes> {
-    const res = await nextServer.post<UserRes>("/auth/login", newUser);
+export const createNote = async (noteData: NewNoteData): Promise<Note> => {
+    const res = await nextServer.post<Note>("/notes", noteData);
     return res.data;
-}
+};
 
-export async function checkSession(): Promise<CheckSessionResp> {
-    const res = await nextServer.get<CheckSessionResp>("/auth/session");
+export const deleteNote = async (noteId: string): Promise<Note> => {
+    const res = await nextServer.delete<Note>(`/notes/${noteId}`);
     return res.data;
-}
+};
 
-export async function fetchUser(): Promise<UserRes> {
-    const res = await nextServer.get<UserRes>("/users/me");
+export const registerUser = async (data: AuthData): Promise<UserReg> => {
+    const res = await nextServer.post<UserReg>("/auth/register", data);
     return res.data;
-}
+};
 
-export async function logOut(): Promise<void> {
+export const loginUser = async (data: AuthData): Promise<UserLog> => {
+    const res = await nextServer.post<UserLog>("/auth/login", data);
+    return res.data;
+};
+
+export interface CheckSessionRes {
+    message: string;
+}
+export const checkSession = async (): Promise<CheckSessionRes> => {
+    const res = await nextServer.get<CheckSessionRes>("/auth/session");
+    return res.data;
+};
+
+export const getMe = async (): Promise<UserLog> => {
+    const res = await nextServer.get<UserLog>("/users/me");
+    return res.data;
+};
+
+export const logOut = async () => {
     await nextServer.post("/auth/logout");
-}
+};
 
-export async function updateUser(value: UpdateUserProps): Promise<UserRes> {
-    const res = await nextServer.patch<UserRes>("/users/me", value);
+export const updateUser = async (data: {
+    username: string;
+}): Promise<UserLog> => {
+    const res = await nextServer.patch<UserLog>("/users/me", data);
     return res.data;
-}
+};

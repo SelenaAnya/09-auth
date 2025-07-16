@@ -5,14 +5,14 @@ type AuthUser = {
     email: string;
     avatar?: string;
 };
-export type AuthStoreType = {
+export type useAuthStore = {
     isAuthenticated: boolean;
     user: AuthUser | null;
     setUser: (user: AuthUser) => void;
     clearIsAuthenticated: () => void;
 };
 
-export const useAuth = create<AuthStoreType>()((set) => ({
+export const useAuth = create<useAuthStore>()((set) => ({
     isAuthenticated: false,
     user: null,
     setUser: (user: AuthUser) => set({ user, isAuthenticated: true }),
@@ -21,4 +21,4 @@ export const useAuth = create<AuthStoreType>()((set) => ({
             isAuthenticated: false,
             user: null,
         }),
-}));
+})); 

@@ -1,6 +1,7 @@
+// колекція нотатків
 import css from "./NoteList.module.css";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deleteNote } from "@/lib/api/api";
+import { deleteNote } from "@/lib/api/clientApi";
 import type { Note } from "@/types/note";
 import Link from "next/link";
 
@@ -12,7 +13,7 @@ export default function NoteList({ notes }: NoteListProps) {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: (id: number) => deleteNote(id),
+    mutationFn: (id: string) => deleteNote(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notes"] });
     },

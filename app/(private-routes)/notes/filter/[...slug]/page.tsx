@@ -1,6 +1,5 @@
-import { fetchNotes } from "@/lib/api";
-import NotesClient from "./Notes.client";
 import { Metadata } from "next";
+import NotesClient from "./Notes.client";
 
 export const generateMetadata = async ({
   params,
@@ -10,27 +9,22 @@ export const generateMetadata = async ({
   const { slug } = await params;
   const tag = slug[0] === "All" ? "All" : slug[0];
 
-  const baseUrl = "https://notehub.com/notes";
-  const urlWithTag = tag !== "All" ? `${baseUrl}/${tag}` : baseUrl;
-
-  const description =
-    tag !== "All"
-      ? `A collection of notes tagged with "${tag}"`
-      : "A collection of all notes";
-
   return {
     title: tag !== "All" ? `Notes tagged "${tag}"` : "All notes",
-    description,
+    description:
+      tag !== "All"
+        ? `A collection of notes tagget with "${tag}"`
+        : "A collection of all notes",
     openGraph: {
       title: `Notes: ${tag}`,
-      description,
-      url: urlWithTag,
+      description: "some description",
+      url: "https://notehub.com/notes/",
       images: [
         {
           url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
           width: 1200,
           height: 630,
-          alt: tag !== "All" ? `Notes tagged "${tag}"` : "All notes", // виправлено "tagget"
+          alt: tag ? `Notes tagget "${tag}"` : "All notes",
         },
       ],
     },
@@ -45,7 +39,5 @@ export default async function FilteredNotesPage({
   const { slug } = await params;
   const tag = slug[0] === "All" ? undefined : slug[0];
 
-  const data = await fetchNotes(1, "", 12, tag);
-
-  return <NotesClient initialData={data} tag={tag} />;
+  return <NotesClient tag={tag} />;
 }

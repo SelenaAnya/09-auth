@@ -1,22 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { fetchNotes } from "@/lib/api";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { useDebounce } from "use-debounce";
-import type { FetchNoteService } from "@/lib/api";
 import css from "./NotesPage.module.css";
 import NoteList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import Link from "next/link";
+import { fetchNotes } from "@/lib/api/clientApi";
 
 interface NotesClientProps {
-  initialData: FetchNoteService;
   tag?: string;
 }
 
-export default function NotesClient({ initialData, tag }: NotesClientProps) {
+export default function NotesClient({ tag }: NotesClientProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [debounceSearchTerm] = useDebounce(searchTerm, 1000);
@@ -26,7 +24,6 @@ export default function NotesClient({ initialData, tag }: NotesClientProps) {
     queryKey: ["notes", currentPage, debounceSearchTerm, tag],
     queryFn: () => fetchNotes(currentPage, debounceSearchTerm, perPage, tag),
     placeholderData: keepPreviousData,
-    initialData,
   });
 
   const handleSearchChange = (newTerm: string) => {
@@ -41,7 +38,7 @@ export default function NotesClient({ initialData, tag }: NotesClientProps) {
         {data && data.totalPages > 1 && (
           <Pagination
             currentPage={currentPage}
-            totalPages={data.totalPages}
+            pageCount={data.totalPages}
             onPageChange={setCurrentPage}
           />
         )}

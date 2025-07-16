@@ -5,7 +5,7 @@ const Footer = () => {
     return (
         <footer className={css.footer}>
             <div className={css.content}>
-                <p>&copy; 2024 NoteHub. All rights reserved.</p>
+                <p>&copy; 2025 NoteHub. All rights reserved.</p>
                 <div className={css.wrap}>
                     <p>Developer: Kovalenko Anna</p>
                     <p>

@@ -1,33 +1,16 @@
 "use client";
-// import { fetchNoteById } from "@/lib/api";
+
 import css from "./NotPreview.module.css";
-// import { useQuery } from "@tanstack/react-query";
-// import Loader from "../Loader/Loader";
-// import ErrorText from "../Error/Error";
 import { Note } from "@/types/note";
 
 type NotePreviewProps = {
-  // id: number;
   onClose: () => void;
   note: Note
 };
 
 export default function NotePreview({ note, onClose }: NotePreviewProps) {
-  // const {
-  //   data: note,
-  //   isLoading,
-  //   isError,
-  // } = useQuery({
-  //   queryKey: ["note", id],
-  //   queryFn: () => fetchNoteById(Number(id)),
-  //   refetchOnMount: false,
-  // });
-
   return (
     <>
-      {/* {isLoading && <Loader />}
-      {isError && <ErrorText message="Something went wrong." />}
-      {note && ( */}
         <div className={css.container}>
           <div className={css.item}>
             <div className={css.header}>

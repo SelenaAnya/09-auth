@@ -1,16 +1,17 @@
+// форма створення нотатки
 "use client";
 
 import css from "./NoteForm.module.css";
-import { createNote } from "@/lib/api/api";
+import { createNote } from "@/lib/api/clientApi";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useNoteStore } from "@/lib/store/noteStore";
+import { useNoteDraftStore } from "@/lib/store/noteStore";
 
 export default function NoteForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { draft, setDraft, clearDraft } = useNoteStore();
+  const { draft, setDraft, clearDraft } = useNoteDraftStore();
 
   const { mutate, isPending } = useMutation({
     mutationFn: createNote,
@@ -55,13 +56,7 @@ export default function NoteForm() {
 
       <div className={css.formGroup}>
         <label htmlFor="tag">Tag</label>
-        <select
-          id="tag"
-          name="tag"
-          className={css.select}
-          value={draft.tag}
-          onChange={(e) => setDraft({ ...draft, tag: e.target.value })}
-        >
+        <select id="tag" name="tag" className={css.select}>
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
           <option value="Personal">Personal</option>

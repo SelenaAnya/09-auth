@@ -27,7 +27,6 @@ export const fetchNotes = async (
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
   const res = await nextServer.get<Note>(`/notes/${id}`);
-
   return res.data;
 };
 
@@ -53,10 +52,17 @@ export const loginUser = async (data: AuthData): Promise<UserLogin> => {
 
 export interface CheckSessionRes {
   message: string;
+  valid?: boolean;
 }
-export const checkSession = async (): Promise<CheckSessionRes> => {
-  const res = await nextServer.get<CheckSessionRes>("/auth/session");
-  return res.data;
+
+export const checkSession = async (): Promise<boolean> => {
+  try {
+    const res = await nextServer.get<CheckSessionRes>("/auth/session");
+    return res.status === 200;
+  } catch (error) {
+    console.error("Session check failed:", error);
+    return false;
+  }
 };
 
 export const getMe = async (): Promise<UserLogin> => {
@@ -64,7 +70,7 @@ export const getMe = async (): Promise<UserLogin> => {
   return res.data;
 };
 
-export const logOut = async () => {
+export const logOut = async (): Promise<void> => {
   await nextServer.post("/auth/logout");
 };
 

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import TagsMenu from '../TagsMenu/TagsMenu';
+import AuthNavigation from '../AuthNavigation/AuthNavigation';
 import css from './Header.module.css';
 
 export default function Header() {
@@ -14,6 +15,7 @@ export default function Header() {
                         <Link className={css.navigationLink} href="/">Home</Link>
                     </li>
                     <li className={css.navigationLink}><TagsMenu /></li>
+                    <AuthNavigation />
                 </ul>
             </nav>
         </header>

@@ -24,7 +24,14 @@ export default function NoteForm() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    mutate(draft);
+    const formData = new FormData(event.currentTarget);
+    const tag = formData.get("tag") as string;
+    
+    // Використовуємо тег з форми, а не з draft
+    mutate({
+      ...draft,
+      tag: tag || draft.tag
+    });
   };
 
   return (
@@ -56,7 +63,13 @@ export default function NoteForm() {
 
       <div className={css.formGroup}>
         <label htmlFor="tag">Tag</label>
-        <select id="tag" name="tag" className={css.select}>
+        <select 
+          id="tag" 
+          name="tag" 
+          className={css.select}
+          value={draft.tag}
+          onChange={(e) => setDraft({ ...draft, tag: e.target.value })}
+        >
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
           <option value="Personal">Personal</option>
@@ -74,7 +87,7 @@ export default function NoteForm() {
           Cancel
         </button>
         <button type="submit" className={css.submitButton} disabled={isPending}>
-          Create note
+          {isPending ? "Creating..." : "Create note"}
         </button>
       </div>
     </form>

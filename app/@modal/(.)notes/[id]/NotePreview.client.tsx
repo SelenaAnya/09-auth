@@ -21,7 +21,7 @@ export default function NotePreviewPage() {
     isLoading,
     isError,
   } = useQuery<Note>({
-    queryKey: ["note", id],
+    queryKey: ["notes", id], // Змінено з "note" на "notes"
     queryFn: () => fetchNoteById(id),
     refetchOnMount: false,
   });

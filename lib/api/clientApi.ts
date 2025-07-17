@@ -45,7 +45,7 @@ export const registerUser = async (data: AuthData): Promise<UserRegister> => {
   return res.data;
 };
 
-export const loginUser = async (data: AuthData): Promise<UserLogin> => {
+export const login = async (data: AuthData): Promise<UserLogin> => {
   const res = await nextServer.post<UserLogin>("/auth/login", data);
   return res.data;
 };

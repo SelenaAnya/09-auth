@@ -2,14 +2,14 @@
 import { useRouter } from "next/navigation";
 import { registerUser, RegisterRequest } from "../../../lib/api/clientApi";
 import { useState } from "react";
-import { useAuth } from "@/lib/store/authStore";
+import { useAuthStore } from "@/lib/store/authStore";
 import css from "./page.module.css";
 
 const SignUp = () => {
     const router = useRouter();
     const [error, setError] = useState("");
 
-    const setUser = useAuth((state) => state.setUser);
+    const setUser = useAuthStore((state) => state.setUser);
     
     const handleSubmit = async (formData: FormData) => {
         try {

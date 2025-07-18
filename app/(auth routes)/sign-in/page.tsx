@@ -2,36 +2,35 @@
 
 import React, { useState } from "react";
 import css from "./SignInPage.module.css";
-import { getMe, loginUser } from "@/lib/api/clientApi";
+import { RegisterRequest, loginUser } from "@/lib/api/clientApi";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/store/authStore";
 
-export default function SignInPage() {
-  const router = useRouter();
-  const [errorMessage, setErrorMessage] = useState("");
-  const { setUser, setIsAuthenticated } = useAuth.getState();
+const SignIn = () => {
+    const router = useRouter();
+    const [error, setError] = useState("");
 
-  const handleLogin = async (formData: FormData) => {
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
-
-    try {
-      await loginUser({ email, password });
-      setIsAuthenticated(true);
-
-      const user = await getMe();
-      setUser(user);
-
-      router.push("/profile");
-    } catch (error) {
-      console.error("Login error:", error);
-      setErrorMessage("The login or password is incorrect.");
+    const setUser = useAuth((state) => state.setUser);
+    
+    const handleSubmit = async (formData: FormData) => {
+        try {
+            const userFormData = Object.fromEntries(formData) as RegisterRequest;
+            const user = await loginUser(userFormData);
+            
+            if (user) {
+                setUser(user);
+                router.push("/profile");
+            } else {
+                setError("Invalid email or password");
+            }
+        } catch {
+            setError("Ooops.. Something went wrong, try again");
+        }
     }
-  };
 
   return (
     <main className={css.mainContent}>
-      <form action={handleLogin} className={css.form}>
+      <form action={handleSubmit} className={css.form}>
         <h1 className={css.formTitle}>Sign in</h1>
 
         <div className={css.formGroup}>
@@ -62,7 +61,7 @@ export default function SignInPage() {
           </button>
         </div>
 
-        {errorMessage && <p className={css.error}>{errorMessage}</p>}
+        {error && <p className={css.error}>{error}</p>}
       </form>
     </main>
   );

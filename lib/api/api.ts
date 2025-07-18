@@ -1,8 +1,8 @@
-import axios from "axios";
+import axios from "axios"
 
-const nextServer = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL + "/api",
-  withCredentials: true,
-});
+const baseURL = process.env.NEXT_PUBLIC_API_URL + '/api';
 
-export default nextServer;
+export const nextServer = axios.create({
+    baseURL,
+    withCredentials: true, 
+})

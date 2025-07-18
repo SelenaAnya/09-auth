@@ -7,30 +7,23 @@ import { useParams, useRouter } from "next/navigation";
 
 export default function NoteDetailsClient() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
+  const { data: note, isLoading, error} = useQuery({
+        queryKey: ["note", id],
+        queryFn: () => fetchNoteById(id),
+        refetchOnMount: false,
+    });
 
-  const back = () => {
-    router.back();
-  };
-  const {
-    data: note,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["notes", id],
-    queryFn: () => fetchNoteById(id),
-    refetchOnMount: false,
-  });
+    if (isLoading) return <p>Loading, please wait...</p>;
 
-  if (isLoading) return <p>Loading, please wait...</p>;
-  if (isError || !note) return <p>Something went wrong.</p>;
+    if (error || !note) return <p>Something went wrong.</p>;
+
 
   return (
     <div className={css.container}>
       <div className={css.item}>
         <div className={css.header}>
           <h2>{note.title}</h2>
-          <button className={css.backBtn} onClick={back}>
+          <button className={css.backBtn}>
             Back
           </button>
         </div>

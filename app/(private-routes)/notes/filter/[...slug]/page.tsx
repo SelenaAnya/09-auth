@@ -1,43 +1,43 @@
 import { Metadata } from "next";
 import NotesClient from "./Notes.client";
+import { fetchServerNotes, NotesResponse } from "@/lib/api/serverApi";
+type Props = {
+    params: Promise<{slug: string[]}>;
+}
 
-export const generateMetadata = async ({
-  params,
-}: {
-  params: Promise<{ slug: string[] }>;
-}): Promise<Metadata> => {
-  const { slug } = await params;
-  const tag = slug[0] === "All" ? "All" : slug[0];
+export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
+    const { slug } = await params;
+    const tag = slug[0];
+    return {
+        title: `NoteHab | ${tag}`,
+        description: `Notes of the ${tag} category`,
+        openGraph: {
+            title: `NoteHab | ${tag} category`,
+            description: `Notes of the ${tag} category`,
+            url: `https://09-auth-kappa-seven.vercel.app/notes/filter/${tag}`,
+            images: [
+                {
+                    url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+                    width: 1200,
+                    height: 630,
+                    alt: `NoteHub | ${tag} category`,
+                },
+            ],
+        }
+    }
+}
 
-  return {
-    title: tag !== "All" ? `Notes tagged "${tag}"` : "All notes",
-    description:
-      tag !== "All"
-        ? `A collection of notes tagget with "${tag}"`
-        : "A collection of all notes",
-    openGraph: {
-      title: `Notes: ${tag}`,
-      description: "some description",
-      url: "https://notehub.com/notes/",
-      images: [
-        {
-          url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
-          width: 1200,
-          height: 630,
-          alt: tag ? `Notes tagget "${tag}"` : "All notes",
-        },
-      ],
-    },
-  };
-};
 
-export default async function FilteredNotesPage({
-  params,
-}: {
-  params: Promise<{ slug: string[] }>;
-}) {
-  const { slug } = await params;
-  const tag = slug[0] === "All" ? undefined : slug[0];
+export default async function Notes({params}: Props) {  
+    const { slug } = await params;
+    const tag = slug?.[0] ?? "";
 
-  return <NotesClient tag={tag} />;
+    const initialSearch = "";
+    const initialPage = 1;
+
+    const initialData: NotesResponse = await fetchServerNotes(initialSearch, initialPage, tag);
+    
+    return <>
+        <NotesClient tag={tag} initialData={initialData} initialPage={initialPage} initialSearch={initialSearch} />
+    </>
 }

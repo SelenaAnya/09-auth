@@ -9,6 +9,11 @@ export interface FetchNotesResponse {
   totalPages: number;
 }
 
+export type RegisterRequest = {
+  email: string;
+  password: string;
+};
+
 export interface FetchNotesParams {
   page: number;
   perPage: number;
@@ -73,13 +78,14 @@ export const deleteNote = async (noteId: string): Promise<Note> => {
 
 // 👤 User Auth (CSR)
 export const registerUser = async (data: AuthData): Promise<UserRegister> => {
-  try {
+  
     const res = await nextServer.post<UserRegister>('/auth/register', data);
     return res.data;
-  } catch (error) {
-    console.error('Error registering user:', error);
-    throw error;
-  }
+  
+  // catch (error) {
+  //   console.error('Error registering user:', error);
+  //   throw error;
+  // }
 };
 
 export const loginUser = async (data: AuthData): Promise<UserLogin> => {

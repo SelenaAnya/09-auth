@@ -8,47 +8,44 @@ import NoteList from "@/components/NoteList/NoteList";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
 import Link from "next/link";
-import { fetchNotes } from "@/lib/api/clientApi";
+import { fetchNotes, FetchNotesResponse } from "@/lib/api/clientApi";
 
 interface NotesClientProps {
-  tag?: string;
+    initialData: FetchNotesResponse;
+    initialSearch: string;
+    initialPage: number;
+    tag: string
 }
+  
+export default function NotesClient({initialData, initialSearch, initialPage, tag}: NotesClientProps) {  
+    const [inputValue, setInputValue] = useState(initialSearch);
+    const [page, setPage] = useState<number>(initialPage);
+    const [debouncedValue] = useDebounce(inputValue, 300)
 
-export default function NotesClient({ tag }: NotesClientProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [debounceSearchTerm] = useDebounce(searchTerm, 1000);
-  const perPage = 12;
+    const { data, isSuccess } = useQuery({
+        queryKey: ["notes", debouncedValue, page, tag],
+        queryFn: () => fetchNotes(debouncedValue, page, tag),
+        placeholderData: keepPreviousData,
+        refetchOnMount: true,
+        initialData,
+    })
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["notes", currentPage, debounceSearchTerm, tag],
-    queryFn: () => fetchNotes(currentPage, debounceSearchTerm, perPage, tag),
-    placeholderData: keepPreviousData,
-  });
-
-  const handleSearchChange = (newTerm: string) => {
-    setSearchTerm(newTerm);
-    setCurrentPage(1);
-  };
-
-  return (
+    const onSearch = (value: string) => {
+        setInputValue(value);
+        setPage(1);
+    };
+    
+return <>
     <div className={css.app}>
-      <header className={css.toolbar}>
-        <SearchBox value={searchTerm} onChange={handleSearchChange} />
-        {data && data.totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            pageCount={data.totalPages}
-            onPageChange={setCurrentPage}
-          />
-        )}
-        <Link href="/notes/action/create" className={css.button}>
-          Create note +
-        </Link>
-      </header>
-      {isLoading && <strong className={css.loading}>Loading notes...</strong>}
-      {isError && <p>Something went wrong. Please try again.</p>}
-      {data && <NoteList notes={data.notes} />}
+        <div className={css.toolbar}>
+            <SearchBox value={inputValue} onSearch={onSearch}/>
+            
+            {isSuccess && data.totalPages > 1 && <Pagination totalPages={data.totalPages} currentPage={page} onPageChange={setPage} />}
+                
+            <Link className={css.button} href={"/notes/action/create"}>Create note +</Link>
+        </div>
     </div>
-  );
+        
+    {isSuccess && data.notes.length > 0 && <NoteList notes={data.notes} />}
+</>
 }

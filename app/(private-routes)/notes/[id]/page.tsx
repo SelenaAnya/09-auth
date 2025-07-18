@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 import NoteDetailsClient from "./NoteDetails.client";
 import { Metadata } from "next";
-import { fetchNoteByIdServer } from "@/lib/api/serverApi";
+import { fetchNoteById } from "@/lib/api/serverApi";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -16,25 +16,25 @@ export const generateMetadata = async ({
 }: Props): Promise<Metadata> => {
   const { id } = await params;
 
-  const note = await fetchNoteByIdServer(id);
+  const note = await fetchNoteById(id);
   return {
-    title: note.title,
-    description: note.content,
-    openGraph: {
-      title: note.title,
-      description: note.content.slice(0, 200),
-      url: `https://notehub.com/notes/${id}`,
-      images: [
-        {
-          url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
-          width: 300,
-          height: 300,
-          alt: note.title,
-        },
-      ],
-    },
-  };
-};
+        title: `${note.title}`,
+        description: `${note.content}`,
+        openGraph: {
+            title: `${note.title}`,
+            description: `${note.content}`,
+            url: `https://09-auth-kappa-seven.vercel.app/notes/filter/${note.id}`,
+            images: [
+                {
+                    url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+                    width: 1200,
+                    height: 630,
+                    alt: `${note.title}`,
+                },
+            ],
+        }
+    }
+}
 
 const NoteDetails = async ({ params }: Props) => {
   const { id } = await params;
@@ -42,8 +42,8 @@ const NoteDetails = async ({ params }: Props) => {
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ["notes", id], // Змінено з "note" на "notes"
-    queryFn: () => fetchNoteByIdServer(id),
+    queryKey: ["notes", id], 
+    queryFn: () => fetchNoteById(id),
   });
 
   return (

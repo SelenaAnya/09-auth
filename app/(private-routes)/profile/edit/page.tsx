@@ -1,15 +1,16 @@
 "use client";
 
-import css from "./EditProfilePage.module.css";
-import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/lib/store/authStore";
 import { updateUser } from "@/lib/api/clientApi";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { AuthStore } from "@/lib/store/authStore";
+import css from "./EditProfile.module.css";
 
 const EditProfile = () => {
     const router = useRouter();
-    const user = AuthStore((state) => state.user);
-    const setUser = AuthStore((state) => state.setUser);
+    const user = useAuthStore((state) => state.user);
+    const setUser = useAuthStore((state) => state.setUser);
     
     const [error, setError] = useState("");
 
@@ -23,7 +24,7 @@ const EditProfile = () => {
 
         if (user) {
             try {
-                const editedUserData = await updateMe({
+                const editedUserData = await updateUser({
                     username: editedUserName,
                     email: user.email,
                 });

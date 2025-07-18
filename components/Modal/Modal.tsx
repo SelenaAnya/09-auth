@@ -1,45 +1,41 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+// import React, { useEffect, useState } from "react";
 import css from "./Modal.module.css";
-import { createPortal } from "react-dom";
+import { type Note } from "../../types/note";
+import Link from "next/link";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { deleteNote } from "@/lib/api/clientApi";
 
-interface ModalProps {
-  children: React.ReactNode;
-  onClose: () => void;
+interface NoteListProps {
+    notes: Note[],
 }
 
-export default function Modal({ onClose, children }: ModalProps) {
-  const [mounted, setMounted] = useState(false);
+export default function NoteList({ notes }: NoteListProps) {
+    const queryClient = useQueryClient();
+    
 
-  useEffect(() => {
-    setMounted(true);
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
+    const { mutate, isPending } = useMutation({
+        mutationFn: deleteNote,
+        onSuccess: () => queryClient.invalidateQueries({
+            queryKey: ["notes"],
+        }),
+    })
+    
 
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", handleEsc);
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, [onClose]);
-
-  const handleBackdropClose = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) onClose();
-  };
-
-  if (!mounted) return null;
-
-  return createPortal(
-    <div className={css.backdrop} onClick={handleBackdropClose}>
-      <div className={css.modal} onClick={(event) => event.stopPropagation()}>
-        {children}
-      </div>
-    </div>,
-    document.body
-  );
+return <>
+    <ul className={css.list}>
+        {notes.map((note) => 
+            <li className={css.listItem} key={note.id}>
+                <h2 className={css.title}>{note.title}</h2>
+                <p className={css.content}>{note.content}</p>
+                <div className={css.footer}>
+                <span className={css.tag}>{note.tag}</span>
+                <Link className={css.link} href={`/notes/${note.id}`}>View details</Link>
+                <button className={css.button} onClick={() => mutate(note.id)} disabled={isPending}>Delete</button>
+                </div>
+            </li>
+        )}
+    </ul>
+</>
 }

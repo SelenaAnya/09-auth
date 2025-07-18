@@ -14,6 +14,11 @@ export type RegisterRequest = {
   password: string;
 };
 
+export type UpdateUserRequest = {
+  email: string;
+  username: string;
+};
+
 export interface FetchNotesParams {
   page: number;
   perPage: number;
@@ -117,15 +122,10 @@ export const getMe = async (): Promise<UserLogin> => {
   }
 };
 
-export const updateUser = async (data: { username: string }): Promise<UserLogin> => {
-  try {
-    const res = await nextServer.patch<UserLogin>('/users/me', data);
-    return res.data;
-  } catch (error) {
-    console.error('Error updating user:', error);
-    throw error;
-  }
-};
+export const updateUser = async (payload: UpdateUserRequest) => {
+  const res = await nextServer.patch<UserLogin>('/users/me', payload);
+  return res.data;
+}; 
 
 // 🔐 Session check
 export const checkSession = async (): Promise<UserLogin | null> => {

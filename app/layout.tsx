@@ -27,20 +27,20 @@ export const metadata: Metadata = {
     siteName: "NoteHub",
     images: [
       {
-        url,
+        url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
         width: 1200,
         height: 630,
         alt: "NoteHub App",
       },
     ],
-    type: "website",
+    // type: "website",
   },
-  twitter: {
-    card: "summary_large_image",
-    title: "NoteHub App",
-    description: "A simple application for managing personal notes.",
-    images: [url],
-  },
+  // twitter: {
+  //   card: "summary_large_image",
+  //   title: "NoteHub App",
+  //   description: "A simple application for managing personal notes.",
+  //   images: [url],
+  // },
 };
 
 // Layout

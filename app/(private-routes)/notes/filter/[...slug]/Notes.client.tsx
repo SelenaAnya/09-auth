@@ -11,7 +11,7 @@ import Link from "next/link";
 import { fetchNotes, FetchNotesResponse } from "@/lib/api/clientApi";
 
 interface NotesClientProps {
-    initialData: FetchNotesResponse;
+    initialData: NotesResponse;
     initialSearch: string;
     initialPage: number;
     tag: string

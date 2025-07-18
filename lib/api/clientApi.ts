@@ -70,7 +70,7 @@ export const getMe = async (): Promise<UserLogin> => {
   return res.data;
 };
 
-export const logOut = async (): Promise<void> => {
+export const logout = async (): Promise<void> => {
   await nextServer.post("/auth/logout");
 };
 

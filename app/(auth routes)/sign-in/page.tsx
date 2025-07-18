@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import css from "./SignInPage.module.css";
-import { getMe, login } from "@/lib/api/clientApi";
+import { getMe, loginUser } from "@/lib/api/clientApi";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/store/authStore";
 
@@ -16,7 +16,7 @@ export default function SignInPage() {
     const password = formData.get("password") as string;
 
     try {
-      await login({ email, password });
+      await loginUser({ email, password });
       setIsAuthenticated(true);
 
       const user = await getMe();

@@ -1,33 +1,47 @@
-// сторінку для реєстрації нового користувача
+// app/(auth routes)/sign-up/page.tsx
 "use client";
 
 import { useRouter } from "next/navigation";
 import css from "./SignUpPage.module.css";
 import { useState } from "react";
 
-import { registerUser } from "@/lib/api/clientApi";
+import { registerUser, getMe } from "@/lib/api/clientApi";
 import { useAuth } from "@/lib/store/authStore";
 
 export default function SignUP() {
     const router = useRouter();
     const [errorMessage, setErrorMessage] = useState("");
-    const setUser = useAuth((state) => state.setUser);
+    const [isLoading, setIsLoading] = useState(false);
+    const { setUser, setIsAuthenticated } = useAuth.getState();
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setIsLoading(true);
+        setErrorMessage("");
 
         const formData = new FormData(event.currentTarget);
         const email = formData.get("email") as string;
         const password = formData.get("password") as string;
 
         try {
-            const user = await registerUser({ email, password });
+            // Реєструємо користувача
+            await registerUser({ email, password });
+            
+            // Встановлюємо автентифікацію
+            setIsAuthenticated(true);
+            
+            // Отримуємо повну інформацію про користувача
+            const user = await getMe();
             setUser(user);
+            
             router.push("/profile");
-        } catch {
+        } catch (error) {
+            console.error("Registration error:", error);
             setErrorMessage(
                 "Registration failed. The account may already exist or an error occurred."
             );
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -43,6 +57,7 @@ export default function SignUP() {
                         name="email"
                         className={css.input}
                         required
+                        disabled={isLoading}
                     />
                 </div>
 
@@ -54,16 +69,21 @@ export default function SignUP() {
                         name="password"
                         className={css.input}
                         required
+                        disabled={isLoading}
                     />
                 </div>
 
                 <div className={css.actions}>
-                    <button type="submit" className={css.submitButton}>
-                        Register
+                    <button 
+                        type="submit" 
+                        className={css.submitButton}
+                        disabled={isLoading}
+                    >
+                        {isLoading ? "Registering..." : "Register"}
                     </button>
                 </div>
 
-                <p className={css.error}>{errorMessage}</p>
+                {errorMessage && <p className={css.error}>{errorMessage}</p>}
             </form>
         </main>
     );

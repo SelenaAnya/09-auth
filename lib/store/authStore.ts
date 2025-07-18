@@ -1,20 +1,15 @@
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-
-type AuthUser = {
-  username: string;
-  email: string;
-  avatar?: string;
-};
+import { UserLogin } from "@/types/user";
 
 export type AuthStore = {
   isAuthenticated: boolean;
-  user: AuthUser | null;
+  user: UserLogin | null;
   isLoading: boolean;
   
   // Actions
   setIsAuthenticated: (value: boolean) => void;
-  setUser: (user: AuthUser) => void;
+  setUser: (user: UserLogin) => void;
   clearIsAuthenticated: () => void;
   setLoading: (loading: boolean) => void;
 };
@@ -29,7 +24,7 @@ export const useAuth = create<AuthStore>()(
       setIsAuthenticated: (value) => 
         set({ isAuthenticated: value }, false, 'setIsAuthenticated'),
       
-      setUser: (user: AuthUser) => 
+      setUser: (user: UserLogin) => 
         set({ user, isAuthenticated: true }, false, 'setUser'),
       
       clearIsAuthenticated: () => 

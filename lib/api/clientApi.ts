@@ -1,6 +1,6 @@
 'use client';
 
-import nextServer from './api';
+import { nextServer } from './api';
 import { NewNoteData, Note } from '@/types/note';
 import { AuthData, UserLogin, UserRegister } from '@/types/user';
 

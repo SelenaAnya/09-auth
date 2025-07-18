@@ -2,7 +2,7 @@
 
 import { nextServer } from './api';
 import { NewNoteData, Note } from '@/types/note';
-import { AuthData, UserLogin, UserRegister } from '@/types/user';
+import { AuthData, UserLogin } from '@/types/user';
 
 export interface FetchNotesResponse {
   notes: Note[];
@@ -82,16 +82,15 @@ export const deleteNote = async (noteId: string): Promise<Note> => {
 };
 
 // 👤 User Auth (CSR)
-export const registerUser = async (data: AuthData): Promise<UserRegister> => {
-  
-    const res = await nextServer.post<UserRegister>('/auth/register', data);
-    return res.data;
-  
+export const registerUser = async (data: RegisterRequest) => {
+  const res = await nextServer.post<UserLogin>('/auth/register', data);
+  return res.data;
+};  
   // catch (error) {
   //   console.error('Error registering user:', error);
   //   throw error;
   // }
-};
+
 
 export const loginUser = async (data: AuthData): Promise<UserLogin> => {
   try {

@@ -33,23 +33,20 @@ export interface CheckSessionRes {
 
 // 📝 Notes API (CSR)
 export const fetchNotes = async (
-  page = 1,
-  query = '',
-  perPage = 12,
-  tag?: string
+  query: string,
+  page: number,
+  tag: string
 ): Promise<FetchNotesResponse> => {
-  try {
-    const params: FetchNotesParams = { page, perPage };
-    if (query.trim()) params.search = query.trim();
-    if (tag && tag !== 'All') params.tag = tag;
-
-    const res = await nextServer.get<FetchNotesResponse>('/notes', { params });
+    const res = await nextServer.get<FetchNotesResponse>("/notes", {
+        params: {
+            ...(tag !== "All" ? {tag: tag} : {}),
+            ...(query !== "" ? {search: query} : {}),
+            page,
+            perPage: 12,
+        }
+    })
     return res.data;
-  } catch (error) {
-    console.error('Error fetching notes:', error);
-    throw error;
-  }
-};
+}
 
 export const fetchNoteById = async (id: string): Promise<Note> => {
   try {

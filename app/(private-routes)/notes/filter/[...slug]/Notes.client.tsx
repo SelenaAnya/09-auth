@@ -11,8 +11,8 @@ import css from "./Notes.client.module.css";
 import Link from "next/link";
 
 interface NotesClientProps {
-    initialData: FetchNotesResponse;
     initialSearch: string;
+    initialData: FetchNotesResponse;
     initialPage: number;
     tag: string
 }

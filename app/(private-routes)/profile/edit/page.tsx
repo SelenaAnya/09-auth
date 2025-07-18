@@ -5,7 +5,7 @@ import { updateUser } from "@/lib/api/clientApi";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import css from "./EditProfile.module.css";
+import css from "./EditProfilePage.module.css";
 
 const EditProfile = () => {
     const router = useRouter();

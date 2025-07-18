@@ -8,7 +8,7 @@ import {
   useParams,
   useRouter
  } from "next/navigation";
-import css from "./NotePreview.module.css";
+import css from "./NotPreview.module.css";
 
 
 const NotePreview = () => {

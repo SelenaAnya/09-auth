@@ -47,8 +47,8 @@ export default async function Profile() {
           )}
         </div>
         <div className={css.profileInfo}>
-          <p>Username: {user.username}</p>
-          <p>Email: {user.email}</p>
+          <p>Username: {user?.username || "Guest"}</p>
+          <p>Email: {user?.email || "your_email@example.com"}</p>
         </div>
       </div>
     </main>

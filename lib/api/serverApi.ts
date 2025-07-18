@@ -1,65 +1,69 @@
-import { Note } from "@/types/note";
-import { cookies } from "next/headers";
-import nextServer from "./api";
-import { UserLogin } from "@/types/user";
-import { CheckSessionRes } from "./clientApi";
+import { cookies } from 'next/headers';
+import { Note } from '@/types/note';
+import { UserLogin } from '@/types/user';
+import { FetchNotesParams, FetchNotesResponse, CheckSessionRes } from './clientApi';
+import nextServer from './api';
 
-export interface FetchNoteService {
-  notes: Note[];
-  totalPages: number;
-}
+// ✅ Fetch all notes (SSR)
+export async function fetchNotesServer(
+  query: string,
+  page: number,
+  tag?: string
+): Promise<FetchNotesResponse> {
+  const params: FetchNotesParams = {
+    ...(query.trim() !== '' && { search: query.trim() }),
+    page,
+    perPage: 12,
+    ...(tag && tag !== 'All' && { tag }),
+  };
 
-export async function checkServerSession() {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
 
-  const res = await nextServer.get<CheckSessionRes>("/auth/session", {
+  const response = await nextServer.get<FetchNotesResponse>('/notes', {
+    params,
     headers: {
       Cookie: cookieStore.toString(),
     },
   });
-  return res;
+
+  return response.data;
 }
 
-export const fetchNotesServer = async (
-  page = 1,
-  query = "",
-  perPage = 12,
-  tag?: string
-): Promise<FetchNoteService> => {
-  const cookiesStore = await cookies();
+// ✅ Fetch single note by ID (SSR)
+export async function fetchNoteByIdServer(noteId: string): Promise<Note> {
+  const cookieStore = cookies();
 
-  const params: Record<string, string | number> = { page, perPage };
-  if (query) params.search = query;
-  if (tag && tag !== `All`) params.tag = tag;
-
-  const res = await nextServer.get<FetchNoteService>(`/notes`, {
+  const response = await nextServer.get<Note>(`/notes/${noteId}`, {
     headers: {
-      Cookie: cookiesStore.toString(),
-    },
-    withCredentials: true,
-    params,
-  });
-  return res.data;
-};
-
-export const fetchNoteByIdServer = async (id: string): Promise<Note> => {
-  const cookiesStore = await cookies();
-
-  const res = await nextServer.get<Note>(`/notes/${id}`, {
-    headers: {
-      Cookie: cookiesStore.toString(),
+      Cookie: cookieStore.toString(),
     },
   });
-  return res.data;
-};
 
-export const getMeServer = async (): Promise<UserLogin> => {
-  const cookiesStore = await cookies();
+  return response.data;
+}
 
-  const { data } = await nextServer<UserLogin>("/users/me", {
+// ✅ Check active user session (SSR)
+export async function checkServerSession(): Promise<CheckSessionRes> {
+  const cookieStore = cookies();
+
+  const response = await nextServer.get<CheckSessionRes>('/auth/session', {
     headers: {
-      Cookie: cookiesStore.toString(),
+      Cookie: cookieStore.toString(),
     },
   });
-  return data;
-};
+
+  return response.data;
+}
+
+// ✅ Get current user profile (SSR)
+export async function getMeServer(): Promise<UserLogin> {
+  const cookieStore = cookies();
+
+  const response = await nextServer.get<UserLogin>('/users/me', {
+    headers: {
+      Cookie: cookieStore.toString(),
+    },
+  });
+
+  return response.data;
+}

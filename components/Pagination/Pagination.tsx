@@ -1,4 +1,3 @@
-// елемент управління пагінацією
 import ReactPaginate from "react-paginate";
 import css from "./Pagination.module.css";
 
@@ -10,16 +9,19 @@ interface PaginationProps {
 
 export default function Pagination({
   currentPage,
-  // pageCount,
   onPageChange,
   totalPages,
 }: PaginationProps) {
+  const handleChangePage: ({ selected }
+    : { selected: number }) => void = ({ selected }) => {
+      onPageChange(selected + 1);
+    }
   return (
     <ReactPaginate
       pageCount={totalPages}
       pageRangeDisplayed={5}
       marginPagesDisplayed={1}
-      onPageChange={({ selected }) => onPageChange(selected + 1)}
+      onPageChange={handleChangePage}
       forcePage={currentPage - 1}
       containerClassName={css.pagination}
       activeClassName={css.active}
@@ -27,4 +29,4 @@ export default function Pagination({
       previousLabel="←"
     />
   );
-}
+};

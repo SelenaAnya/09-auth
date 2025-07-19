@@ -1,46 +1,49 @@
 "use client";
-
-import { useState } from "react";
-import css from "./TagsMenu.module.css";
 import Link from "next/link";
+import css from "./TagsMenu.module.css";
+import { useState } from "react";
+import { Category } from "@/types/note";
+import { useAuthStore } from "@/lib/store/authStore";
 
-const tags: string[] = [
-  "All",
-  "Todo",
-  "Work",
-  "Personal",
-  "Meeting",
-  "Shopping",
-];
-// opening/closing menu
-export default function TagsMenu() {
+type TagsMenuProps = {
+  categories: Category[];
+};
+
+const TagsMenu = ({ categories }: TagsMenuProps) => {
+  const { isAuthenticated } = useAuthStore();
   const [isOpen, setIsOpen] = useState(false);
   const toggle = () => setIsOpen(!isOpen);
 
-  const handleCloseMenu = () => {
-    setIsOpen(false);
-  };
-
-  return (
+  return isAuthenticated ? (
     <div className={css.menuContainer}>
-      <button className={css.menuButton} onClick={toggle}>
+      <button onClick={toggle} className={css.menuButton}>
         Notes ▾
       </button>
       {isOpen && (
         <ul className={css.menuList}>
-          {tags.map((tag) => (
-            <li key={tag} className={css.menuItem}>
+          <li className={css.menuItem}>
+            <Link
+              className={css.menuLink}
+              href={`/notes/filter/All`}
+              onClick={toggle}
+            >
+              All notes
+            </Link>
+          </li>
+          {categories.map((category) => (
+            <li key={category.id} className={css.menuItem}>
               <Link
-                href={`/notes/filter/${tag}`}
                 className={css.menuLink}
-                onClick={handleCloseMenu}
+                href={`/notes/filter/${category.name}`}
+                onClick={toggle}
               >
-                {tag}
+                {category.name}
               </Link>
             </li>
           ))}
         </ul>
       )}
     </div>
-  );
-}
+  ) : null;
+};
+export default TagsMenu;

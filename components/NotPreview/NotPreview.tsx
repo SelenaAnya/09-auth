@@ -1,29 +1,49 @@
-"use client";
-
 import css from "./NotPreview.module.css";
 import { Note } from "@/types/note";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { deleteNoteById } from "@/lib/api/clientApi";
+import Link from "next/link";
 
-type NotePreviewProps = {
-  onClose: () => void;
-  note: Note
-};
+interface NotePreviewProps {
+   list: Note[];
+}
 
-export default function NotePreview({ note, onClose }: NotePreviewProps) {
+const NoteList = ({ list }: NotePreviewProps) => {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: deleteNoteById,
+    onSuccess: (data) => {
+      console.log('Notate delete:', data);
+      queryClient.invalidateQueries({ queryKey: ['noteList'] });
+    },
+    onError: (error) => {
+      console.error('Error receiving note:', error);
+    },
+  });
+
+  const deleteNoteClickButton = (id: string) => {
+    mutation.mutate(id);
+  };
   return (
-    <>
-        <div className={css.container}>
-          <div className={css.item}>
-            <div className={css.header}>
-              <h2>{note?.title}</h2>
-              <button className={css.backBtn} onClick={onClose}>
-                Go back
+    <ul className={css.list}>
+      {list.map((note) => {
+        return (
+          <li key={note.id} className={css.listItem}>
+            <h2 className={css.title}>{note.title}</h2>
+            <p className={css.content}>{note.content}</p>
+            <div className={css.footer}>
+              <span className={css.tag}>{note.tag}</span>
+              <Link href={`/notes/${note.id}`}> View details</Link>
+              <button
+                onClick={() => deleteNoteClickButton(note.id)}
+                className={css.button}
+              >
+                Delete
               </button>
             </div>
-            <p className={css.content}>{note?.content}</p>
-            <p className={css.date}>{note?.createdAt}</p>
-          </div>
-        </div>
-      {/* )} */}
-    </>
+          </li>
+        );
+      })}
+    </ul>
   );
-}
+};

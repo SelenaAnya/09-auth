@@ -66,3 +66,6 @@ const SignIn = () => {
     </main>
   );
 }
+
+// Add this line - the default export is required for Next.js pages
+export default SignIn;

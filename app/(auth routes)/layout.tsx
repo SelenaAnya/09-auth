@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
-import { useAuth } from "@/lib/store/authStore";
+import { useAuthStore } from "@/lib/store/authStore";
 
 export default function UpPageLayout({ children }: { children: ReactNode }) {
     const router = useRouter();
-    const clearIsAuthenticated = useAuth((state) => state.clearIsAuthenticated);
+    const clearIsAuthenticated = useAuthStore((state) => state.clearIsAuthenticated);
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {

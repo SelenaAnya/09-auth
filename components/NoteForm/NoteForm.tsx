@@ -1,74 +1,107 @@
-// форма створення нотатки
 "use client";
 
+import { useId } from "react";
+import * as Yup from "yup";
 import css from "./NoteForm.module.css";
-import { createNote } from "@/lib/api/clientApi";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useNoteDraftStore } from "@/lib/store/noteStore";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { NewNoteData } from "@/types/note";
+import { createNote } from "@/lib/api/clientApi";
 
-export default function NoteForm() {
+const OrderSchema = Yup.object().shape({
+  title: Yup.string()
+    .required("This field is required!")
+    .min(3, "Too short")
+    .max(50, "Too long"),
+  content: Yup.string().max(500, "Too long"),
+  tag: Yup.string()
+    .oneOf(["Todo", "Work", "Personal", "Meeting", "Shopping"])
+    .required("This field is required!"),
+});
+
+const NoteForm = () => {
   const router = useRouter();
-  const queryClient = useQueryClient();
-
+  const onClose = () => router.push("/notes/filter/all");
   const { draft, setDraft, clearDraft } = useNoteDraftStore();
 
-  const { mutate, isPending } = useMutation({
-    mutationFn: createNote,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["notes"] });
-      clearDraft();
-      router.back();
-    },
-  });
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const tag = formData.get("tag") as string;
-    
-    // Використовуємо тег з форми, а не з draft
-    mutate({
+  const handleChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    setDraft({
       ...draft,
-      tag: tag || draft.tag
+      [event.target.name]: event.target.value,
     });
   };
 
+  const fieldId = useId();
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: createNote,
+    onSuccess: () => {
+      clearDraft();
+      queryClient.invalidateQueries({ queryKey: ["noteList"] });
+      router.push("/notes/filter/all");
+    },
+    onError: (error) => {
+      console.error("Error creating note:", error);
+    },
+  });
+
+  const handleSubmit = async (formData: FormData) => {
+    const values: NewNoteData = {
+      title: formData.get("title") as NewNoteData["title"],
+      content: (formData.get("content") ?? "") as NewNoteData["content"],
+      tag: formData.get("tag") as NewNoteData["tag"],
+    };
+
+    try {
+      await OrderSchema.validate(values, { abortEarly: false });
+      await mutation.mutateAsync(values);
+      onClose();
+    } catch (err) {
+      console.error("Validation error:", err);
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className={css.form}>
-      <div className={css.formGroup}>
-        <label htmlFor="title">Title</label>
+    <form action={handleSubmit} className={css.form}>
+      <fieldset className={css.formGroup}>
+        <label htmlFor={`${fieldId}-title`}>Title</label>
         <input
-          id="title"
-          type="text"
+          required
+          minLength={3}
+          maxLength={50}
+          id={`${fieldId}-title`}
           name="title"
           className={css.input}
-          value={draft.title}
-          required
-          onChange={(e) => setDraft({ ...draft, title: e.target.value })}
+          defaultValue={draft?.title}
+          onChange={handleChange}
         />
-      </div>
-
-      <div className={css.formGroup}>
-        <label htmlFor="content">Content</label>
+      </fieldset>
+      <fieldset className={css.formGroup}>
+        <label htmlFor={`${fieldId}-content`}>Content</label>
         <textarea
-          id="content"
+          id={`${fieldId}-content`}
           name="content"
-          rows={8}
           className={css.textarea}
-          value={draft.content}
-          onChange={(e) => setDraft({ ...draft, content: e.target.value })}
+          maxLength={500}
+          defaultValue={draft?.content}
+          onChange={handleChange}
         />
-      </div>
-
-      <div className={css.formGroup}>
-        <label htmlFor="tag">Tag</label>
-        <select 
-          id="tag" 
-          name="tag" 
+      </fieldset>
+      <fieldset className={css.formGroup}>
+        <label htmlFor={`${fieldId}-tag`}>Tag</label>
+        <select
+          required
+          id={`${fieldId}-tag`}
+          name="tag"
           className={css.select}
-          value={draft.tag}
-          onChange={(e) => setDraft({ ...draft, tag: e.target.value })}
+          defaultValue={draft?.tag}
+          onChange={handleChange}
         >
           <option value="Todo">Todo</option>
           <option value="Work">Work</option>
@@ -76,20 +109,20 @@ export default function NoteForm() {
           <option value="Meeting">Meeting</option>
           <option value="Shopping">Shopping</option>
         </select>
-      </div>
-
-      <div className={css.actions}>
-        <button
-          type="button"
-          className={css.cancelButton}
-          onClick={() => router.back()}
-        >
+      </fieldset>
+      <fieldset className={css.actions}>
+        <button onClick={onClose} type="button" className={css.cancelButton}>
           Cancel
         </button>
-        <button type="submit" className={css.submitButton} disabled={isPending}>
-          {isPending ? "Creating..." : "Create note"}
+        <button
+          type="submit"
+          className={css.submitButton}
+          disabled={mutation.isPending}
+        >
+          {mutation.isPending ? "Creating..." : "Create note"}
         </button>
-      </div>
+      </fieldset>
     </form>
   );
-}
+};
+export default NoteForm;

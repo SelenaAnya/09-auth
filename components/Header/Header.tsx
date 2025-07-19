@@ -3,21 +3,33 @@ import TagsMenu from '../TagsMenu/TagsMenu';
 import AuthNavigation from '../AuthNavigation/AuthNavigation';
 import css from './Header.module.css';
 
-export default function Header() {
-    return (
-        <header className={css.header}>
-            <Link href="/" aria-label="Home">
-                NoteHub
+const Header = () => {
+  const tags = [
+    { id: 1, name: 'Todo' },
+    { id: 2, name: 'Work' },
+    { id: 3, name: 'Personal' },
+    { id: 4, name: 'Meeting' },
+    { id: 5, name: 'Shopping' },
+  ];
+
+  return (
+    <header className={css.header}>
+      <Link className={css.navigationLink} href="/" aria-label="Home">
+        NoteHub
+      </Link>
+      <nav aria-label="Main Navigation">
+        <ul className={css.navigation}>
+          <li className={css.navigationItem}>
+            <Link className={css.navigationLink} href="/">
+              Home
             </Link>
-            <nav aria-label="Main Navigation">
-                <ul className={css.navigation}>
-                    <li className={css.navigationItem}>
-                        <Link className={css.navigationLink} href="/">Home</Link>
-                    </li>
-                    <li className={css.navigationLink}><TagsMenu /></li>
-                    <AuthNavigation />
-                </ul>
-            </nav>
-        </header>
-    );
+          </li>
+          <li className={css.navigationItem}>
+            <TagsMenu categories={tags} />
+          </li>
+          <AuthNavigation />
+        </ul>
+      </nav>
+    </header>
+  );
 };

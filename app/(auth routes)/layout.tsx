@@ -1,21 +1,23 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ReactNode, useEffect, useState } from "react";
-import { useAuthStore } from "@/lib/store/authStore";
 
-export default function UpPageLayout({ children }: { children: ReactNode }) {
-    const router = useRouter();
-    const clearIsAuthenticated = useAuthStore((state) => state.clearIsAuthenticated);
-    const [isLoading, setIsLoading] = useState(true)
+type Props = {
+  children: React.ReactNode;
+};
 
-    useEffect(() => {
-        clearIsAuthenticated();
-        router.refresh()
-        setIsLoading(false)
-    }, [router, clearIsAuthenticated])
+export default function PublicLayout({ children }: Props) {
+  const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    router.refresh();
+    setLoading(false);
+  }, [router]);
 
     return <>
-        {isLoading ? <div>Please wait... it will load soon...</div> : children}    
+        [Loading ? <div>Please wait... it will load soon...</div> : children]    
     </>
 }

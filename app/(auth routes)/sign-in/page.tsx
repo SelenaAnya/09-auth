@@ -1,71 +1,70 @@
 "use client";
 
-import React, { useState } from "react";
-import css from "./SignInPage.module.css";
-import { RegisterRequest, loginUser } from "@/lib/api/clientApi";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { login, LoginRequest } from "@/lib/api/clientApi";
 import { useAuthStore } from "@/lib/store/authStore";
+import css from "./SignInPage.module.css";
 
 const SignIn = () => {
-    const router = useRouter();
-    const [error, setError] = useState("");
+  const router = useRouter();
+  const [error, setError] = useState("");
 
-    const setUser = useAuthStore((state) => state.setUser);
-    
-    const handleSubmit = async (formData: FormData) => {
-        try {
-            const userFormData = Object.fromEntries(formData) as RegisterRequest;
-            const user = await loginUser(userFormData);
-            
-            if (user) {
-                setUser(user);
-                router.push("/profile");
-            } else {
-                setError("Invalid email or password");
-            }
-        } catch {
-            setError("Ooops.. Something went wrong, try again");
-        }
+  const setUser = useAuthStore((state) => state.setUser);
+
+  const handleSubmit = async (formData: FormData) => {
+    try {
+      const email = formData.get("email")?.toString() || "";
+      const password = formData.get("password")?.toString() || "";
+
+      const values: LoginRequest = { email, password };
+
+      const res = await login(values);
+      if (res) {
+        setUser(res);
+        router.push("/profile");
+      } else {
+        setError("Invalid email or password");
+      }
+    } catch (error) {
+      console.log("error", error);
+      setError("Invalid email or password");
     }
+  };
 
   return (
     <main className={css.mainContent}>
-      <form action={handleSubmit} className={css.form}>
+      <form className={css.form} action={handleSubmit}>
         <h1 className={css.formTitle}>Sign in</h1>
-
         <div className={css.formGroup}>
           <label htmlFor="email">Email</label>
           <input
+            className={css.input}
             id="email"
             type="email"
             name="email"
-            className={css.input}
             required
           />
         </div>
-
         <div className={css.formGroup}>
           <label htmlFor="password">Password</label>
           <input
+            className={css.input}
             id="password"
             type="password"
             name="password"
-            className={css.input}
             required
           />
         </div>
-
         <div className={css.actions}>
-          <button type="submit" className={css.submitButton}>
+          <button className={css.submitButton} type="submit">
             Log in
           </button>
         </div>
-
         {error && <p className={css.error}>{error}</p>}
       </form>
     </main>
   );
-}
+};
 
-// Add this line - the default export is required for Next.js pages
 export default SignIn;

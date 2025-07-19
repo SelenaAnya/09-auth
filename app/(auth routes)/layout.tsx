@@ -17,7 +17,9 @@ export default function PublicLayout({ children }: Props) {
     setLoading(false);
   }, [router]);
 
-    return <>
-        [Loading ? <div>Please wait... it will load soon...</div> : children]    
-    </>
+  return <>{loading ? <div>Please wait... it will load soon...</div> : children}</>;
 }
+    
+    
+    
+

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import css from './Profile.module.css';
+import css from './ProfilePage.module.css';
 import { Metadata } from 'next';
 import { getServerMe } from '@/lib/api/serverApi';
 import Image from 'next/image';

@@ -1,7 +1,7 @@
 'use client';
 
 import Modal from '@/components/Modal/Modal';
-import css from './NotePreview.module.css';
+import css from './NotPreview.module.css';
 
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';

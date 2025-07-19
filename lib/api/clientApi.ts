@@ -90,3 +90,26 @@ export const updateMe = async (user: Pick<User, "username">) => {
 export const logout = async (): Promise<void> => {
   await nextServer.post("/auth/logout");
 };
+
+// export const login = async (data: LoginRequest) => {
+//   try {
+//     console.log('Attempting login with:', { 
+//       baseURL: nextServer.defaults.baseURL,
+//       url: '/auth/login',
+//       data 
+//     });
+    
+//     const response = await nextServer.post<User>("/auth/login", data);
+//     console.log('Login successful:', response.data);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Login error details:', {
+//       message: error.message,
+//       code: error.code,
+//       config: error.config,
+//       request: error.request,
+//       response: error.response
+//     });
+//     throw error;
+//   }
+// };

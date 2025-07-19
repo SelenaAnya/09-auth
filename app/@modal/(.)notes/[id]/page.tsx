@@ -1,41 +1,30 @@
-'use client';
-import Modal from '@/components/Modal/Modal';
+import { getSingleServerNote } from '@/lib/api/serverApi';
 
-import { useRouter } from 'next/navigation';
-import css from './NotePreview.module.css';
-import { useQuery } from '@tanstack/react-query';
-import { getSingleNote } from '@/lib/api/clientApi';
+import NotePreviewClient from './NotePreview.client';
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from '@tanstack/react-query';
 
-export default function NotePreviewClient({ id }: { id: string }) {
-  const router = useRouter();
-  const closeModal = () => router.back();
+type Props = {
+  params: Promise<{ id: string }>;
+};
 
-  const { data, isLoading, error } = useQuery({
+const NoteModalPage = async ({ params }: Props) => {
+  const { id } = await params;
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
     queryKey: ['notePreview', id],
-    queryFn: () => getSingleNote(id),
-    refetchOnMount: false,
+    queryFn: () => getSingleServerNote(id),
   });
 
-  if (isLoading) return <p>Loading, please wait...</p>;
-  if (error) return <p>Something went wrong.</p>;
-  if (!data) return <p>Something went wrong.</p>;
-
   return (
-    <Modal closeModal={closeModal}>
-      <div className={css.container}>
-        <header className={css.header}>
-          <h2>{data.title}</h2>
-        </header>
-        <div className={css.date}>
-          <time>{new Date(data.createdAt).toLocaleString()}</time>
-        </div>
-        <p className={css.content}>{data.content}</p>
-        {data.tag && <span className={css.tag}>{data.tag}</span>}
-
-        <button onClick={closeModal} className={css.backBtn}>
-          Back
-        </button>
-      </div>
-    </Modal>
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <NotePreviewClient id={id} />
+    </HydrationBoundary>
   );
-}
+};
+
+export default NoteModalPage;

@@ -1,7 +1,7 @@
 import Link from 'next/link';
+import css from './Header.module.css';
 import TagsMenu from '../TagsMenu/TagsMenu';
 import AuthNavigation from '../AuthNavigation/AuthNavigation';
-import css from './Header.module.css';
 
 const Header = () => {
   const tags = [
@@ -33,3 +33,5 @@ const Header = () => {
     </header>
   );
 };
+
+export default Header;

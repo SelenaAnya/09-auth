@@ -1,13 +1,11 @@
-import css from "./Error.module.css";
+import css from "./ErrorMessage.module.css";
 
-interface ErrorTextProps {
-  message: string;
+function ErrorText() {
+  return (
+    <>
+      <p className={css.text}>There was an error, please try again...</p>;
+    </>
+  );
 }
 
-export default function ErrorText({ message }: ErrorTextProps) {
-    return (
-        <div className={css.errorText}>
-          <p>{message}</p>
-        </div>
-    );
-}
+export default ErrorText;

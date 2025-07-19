@@ -1,43 +1,53 @@
-import { Metadata } from "next";
-import NotesClient from "./Notes.client";
-import { fetchServerNotes, NotesResponse } from "@/lib/api/serverApi";
+import { getServerNotes } from '@/lib/api/serverApi';
+import Notes from './Notes.client';
+import { notFound } from 'next/navigation';
+import { Metadata } from 'next';
+
 type Props = {
-    params: Promise<{slug: string[]}>;
+  params: Promise<{
+    slug?: string[];
+  }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const tag = slug?.[0] ?? 'All';
+  const isAll = tag === 'All';
+
+  const pageTitle = isAll ? 'All' : tag;
+
+  const pageDescription = isAll
+    ? 'Create by GoIT'
+    : `Notes “${tag}”, Create by GoIT`;
+
+  const canonicalUrl = `/notes/filter/${tag}`;
+  return {
+    title: pageTitle,
+    description: pageDescription,
+    openGraph: {
+      title: pageTitle,
+      description: pageDescription,
+      url: canonicalUrl,
+      images: [
+        {
+          url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'NoteHub Open Graph Image',
+        },
+      ],
+    },
+  };
 }
+export default async function FilteredNotesPage({ params }: Props) {
+  const tags = await params;
+  const tag = tags.slug?.[0] === 'All' ? undefined : tags.slug?.[0];
 
-export const generateMetadata = async ({ params }: Props): Promise<Metadata> => {
-    const { slug } = await params;
-    const tag = slug[0];
-    return {
-        title: `NoteHab | ${tag}`,
-        description: `Notes of the ${tag} category`,
-        openGraph: {
-            title: `NoteHab | ${tag} category`,
-            description: `Notes of the ${tag} category`,
-            url: `https://09-auth-kappa-seven.vercel.app/notes/filter/${tag}`,
-            images: [
-                {
-                    url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
-                    width: 1200,
-                    height: 630,
-                    alt: `NoteHub | ${tag} category`,
-                },
-            ],
-        }
-    }
-}
+  try {
+    const initialData = await getServerNotes(1, '', tag);
 
-
-export default async function Notes({params}: Props) {  
-    const { slug } = await params;
-    const tag = slug?.[0] ?? "";
-
-    const initialSearch = "";
-    const initialPage = 1;
-
-    const initialData: NotesResponse = await fetchServerNotes(initialSearch, initialPage, tag);
-    
-    return <>
-        <NotesClient tag={tag} initialData={initialData} initialPage={initialPage} initialSearch={initialSearch} />
-    </>
+    return <Notes initialData={initialData} tag={tag} />;
+  } catch {
+    return notFound();
+  }
 }

@@ -1,36 +1,32 @@
-"use client";
+'use client';
 
-import { fetchNoteById } from "@/lib/api/clientApi";
-import css from "./NoteDetails.module.css";
-import { useQuery } from "@tanstack/react-query";
-import { useParams, useRouter } from "next/navigation";
+import { useQuery } from '@tanstack/react-query';
+import css from './NoteDetails.module.css';
+import { getSingleNote } from '@/lib/api/clientApi';
 
-export default function NoteDetailsClient() {
-  const { id } = useParams<{ id: string }>();
-  const { data: note, isLoading, error} = useQuery({
-        queryKey: ["note", id],
-        queryFn: () => fetchNoteById(id),
-        refetchOnMount: false,
-    });
+const NoteDetailsClient = ({ id }: { id: string }) => {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['note', id],
+    queryFn: () => getSingleNote(id),
+    refetchOnMount: false,
+  });
 
-    if (isLoading) return <p>Loading, please wait...</p>;
-
-    if (error || !note) return <p>Something went wrong.</p>;
-
+  if (isLoading) return <p>Loading, please wait...</p>;
+  if (error) return <p>Something went wrong.</p>;
+  if (!data) return <p>Something went wrong.</p>;
 
   return (
     <div className={css.container}>
       <div className={css.item}>
         <div className={css.header}>
-          <h2>{note.title}</h2>
-          <button className={css.backBtn}>
-            Back
-          </button>
+          <h2>{data.title}</h2>
+          <button className={css.editBtn}>Edit note</button>
         </div>
-        <p className={css.tag}>{note.tag}</p>
-        <p className={css.content}>{note.content}</p>
-        <p className={css.date}>Created date: {note.createdAt}</p>
+        <p className={css.content}>{data.content}</p>
+        <p className={css.date}>{data.createdAt}</p>
       </div>
     </div>
   );
-}
+};
+
+export default NoteDetailsClient;

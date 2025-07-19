@@ -1,90 +1,82 @@
 "use client";
-
+import { updateMe } from "@/lib/api/clientApi";
 import { useAuthStore } from "@/lib/store/authStore";
-import { updateUser } from "@/lib/api/clientApi";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useMutation } from "@tanstack/react-query";
+
 import css from "./EditProfilePage.module.css";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
 
-const EditProfile = () => {
-    const router = useRouter();
-    const user = useAuthStore((state) => state.user);
-    const setUser = useAuthStore((state) => state.setUser);
-    
-    const [error, setError] = useState("");
+const EditProfilePage = () => {
+  const { user, setUser } = useAuthStore();
+  const router = useRouter();
+  const { mutateAsync, isPending } = useMutation({
+    mutationFn: updateMe,
+  });
 
-    const handleSubmit = async (formData: FormData) => {
-        const editedUserName = String(formData.get("username")).trim();
+  const handleSaveUser = async (formData: FormData) => {
+    const username = formData.get("username") as string;
 
-        if (editedUserName === "") {
-            setError("Username is required");
-            return;
-        }
+    try {
+      const data = await mutateAsync({ username });
+      if (data) {
+        setUser(data);
+        router.push("/profile");
+      }
+    } catch (error) {
+      console.error("Oops, some error:", error);
+    }
+  };
 
-        if (user) {
-            try {
-                const editedUserData = await updateUser({
-                    username: editedUserName,
-                    email: user.email,
-                });
-                setUser(editedUserData);
-
-                router.push("/profile");
-            } catch {
-                setError("Ooops.. Something went wrong, try again");
-            }
-        }
-    };
-
-    const handleCancel = () => {
-        router.back();
-    };
+  if (!user?.avatar || !user) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <main className={css.mainContent}>
       <div className={css.profileCard}>
         <h1 className={css.formTitle}>Edit Profile</h1>
-
-        {user?.avatar && <Image
+        <Image
           src={user.avatar}
-          alt="User Avatar"
+          alt={user.username ?? ""}
           width={120}
           height={120}
           className={css.avatar}
-        />}
-
-        <form action={handleSubmit} className={css.profileInfo}>
+        />
+        <form className={css.profileInfo} action={handleSaveUser}>
           <div className={css.usernameWrapper}>
             <label htmlFor="username">Username:</label>
             <input
-              name="username"
               id="username"
               type="text"
-              className={css.input}
               defaultValue={user?.username}
+              className={css.input}
+              name="username"
             />
           </div>
 
-          <p>{user?.email}</p>
+          <p>Email: {user?.email}</p>
 
           <div className={css.actions}>
-            <button type="submit" className={css.saveButton}>
-              Save
+            <button
+              type="submit"
+              className={css.saveButton}
+              disabled={isPending}
+            >
+              {isPending ? "Saving..." : "Save"}
             </button>
             <button
-              onClick={handleCancel}
               type="button"
               className={css.cancelButton}
+              onClick={() => router.push("/profile")}
             >
               Cancel
             </button>
           </div>
         </form>
-        {error && <p className={css.error}>{error}</p>}
       </div>
     </main>
   );
 };
 
-export default EditProfile;
+export default EditProfilePage;

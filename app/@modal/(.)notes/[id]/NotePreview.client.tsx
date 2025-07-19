@@ -1,8 +1,9 @@
 'use client';
+
 import Modal from '@/components/Modal/Modal';
+import css from './NotePreview.module.css';
 
 import { useRouter } from 'next/navigation';
-import css from './NotePreview.module.css';
 import { useQuery } from '@tanstack/react-query';
 import { getSingleNote } from '@/lib/api/clientApi';
 
@@ -17,8 +18,8 @@ export default function NotePreviewClient({ id }: { id: string }) {
   });
 
   if (isLoading) return <p>Loading, please wait...</p>;
-  if (error) return <p>Something went wrong.</p>;
-  if (!data) return <p>Something went wrong.</p>;
+  if (error) return <p>...Something wrong.</p>;
+  if (!data) return <p>...Something wrong.</p>;
 
   return (
     <Modal closeModal={closeModal}>

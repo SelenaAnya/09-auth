@@ -1,54 +1,51 @@
-import {
-  QueryClient,
-  HydrationBoundary,
-  dehydrate,
-} from "@tanstack/react-query";
-import NoteDetailsClient from "./NoteDetails.client";
-import { Metadata } from "next";
-import { fetchNoteById } from "@/lib/api/serverApi";
+import css from './NotesPage.module.css';
+import { getSingleServerNote } from '@/lib/api/serverApi';
+import NoteDetailsClient from './NoteDetails.client';
+import { Metadata } from 'next';
+import { dehydrate, QueryClient } from '@tanstack/react-query';
+import { HydrationBoundary } from '@tanstack/react-query';
 
-type Props = {
+
+interface NotesProps {
   params: Promise<{ id: string }>;
-};
-
-export const generateMetadata = async ({
+}
+ 
+export async function generateMetadata({
   params,
-}: Props): Promise<Metadata> => {
+}: NotesProps): Promise<Metadata> {
   const { id } = await params;
-
-  const note = await fetchNoteById(id);
+  const note = await getSingleServerNote(id);
   return {
-        title: `${note.title}`,
-        description: `${note.content}`,
-        openGraph: {
-            title: `${note.title}`,
-            description: `${note.content}`,
-            url: `https://09-auth-kappa-seven.vercel.app/notes/filter/${note.id}`,
-            images: [
-                {
-                    url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
-                    width: 1200,
-                    height: 630,
-                    alt: `${note.title}`,
-                },
-            ],
-        }
-    }
+    title: note.title,
+    description: note.content?.slice(0, 150),
+    openGraph: {
+      title: note.title,
+      description: note.content?.slice(0, 150),
+      url: `/notes/${id}`,
+      images: [
+        {
+          url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+          width: 1200,
+          height: 630,
+          alt: 'NoteHub Open Graph Image',
+        },
+      ],
+    },
+  };
 }
 
-const NoteDetails = async ({ params }: Props) => {
+const NoteDetails = async ({ params }: NotesProps) => {
   const { id } = await params;
-
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
-    queryKey: ["notes", id], 
-    queryFn: () => fetchNoteById(id),
+    queryKey: ['note', id],
+    queryFn: () => getSingleServerNote(id),
   });
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteDetailsClient />
+      <NoteDetailsClient id={id} />
     </HydrationBoundary>
   );
 };

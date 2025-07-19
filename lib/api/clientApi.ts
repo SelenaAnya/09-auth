@@ -1,135 +1,92 @@
-'use client';
-
 import { nextServer } from './api';
-import { NewNoteData, Note } from '@/types/note';
-import { AuthData, UserLogin } from '@/types/user';
+import {
+  NewNoteData,
+  Note,
+  NotesResponse
+} from '@/types/note';
+import { AxiosResponse } from 'axios';
+import { User } from '@/types/user';
 
-export interface FetchNotesResponse {
-  notes: Note[];
-  totalPages: number;
-}
-
-export type RegisterRequest = {
+export interface LoginRequest {
   email: string;
   password: string;
-};
-
-export type UpdateUserRequest = {
-  email: string;
-  username: string;
-};
-
-export interface FetchNotesParams {
-  page: number;
-  perPage: number;
-  search?: string;
-  tag?: string;
 }
 
-export interface CheckSessionRes {
-  message: string;
-  valid?: boolean;
-}
-
-// 📝 Notes API (CSR)
 export const fetchNotes = async (
-  query: string,
-  page: number,
-  tag: string
-): Promise<FetchNotesResponse> => {
-    const res = await nextServer.get<FetchNotesResponse>("/notes", {
-        params: {
-            ...(tag !== "All" ? {tag: tag} : {}),
-            ...(query !== "" ? {search: query} : {}),
-            page,
-            perPage: 12,
-        }
-    })
-    return res.data;
-}
+  page: number = 1,
+  search: string = "",
+  tag?: string
+): Promise<NotesResponse> => {
+  const perPage = 12;
 
-export const fetchNoteById = async (id: string): Promise<Note> => {
-  try {
-    const res = await nextServer.get<Note>(`/notes/${id}`);
-    return res.data;
-  } catch (error) {
-    console.error('Error fetching note:', error);
-    throw error;
+  const params: Record<string, string | number> = {
+    page,
+    perPage,
+  };
+
+  if (search.trim()) {
+    params.search = search;
   }
+
+  if (tag && tag.toLowerCase() !== "all") {
+    params.tag = tag;
+  }
+
+  const response: AxiosResponse<NotesResponse> = await nextServer.get(
+    "/notes",
+    {
+      params,
+    }
+  );
+
+  return response.data;
 };
 
-export const createNote = async (noteData: NewNoteData): Promise<Note> => {
-  try {
-    const res = await nextServer.post<Note>('/notes', noteData);
-    return res.data;
-  } catch (error) {
-    console.error('Error creating note:', error);
-    throw error;
-  }
+export const createNote = async (payload: NewNoteData): Promise<Note> => {
+  const response = await nextServer.post<Note>("/notes", payload);
+
+  return response.data;
 };
 
-export const deleteNote = async (noteId: string): Promise<Note> => {
-  try {
-    const res = await nextServer.delete<Note>(`/notes/${noteId}`);
-    return res.data;
-  } catch (error) {
-    console.error('Error deleting note:', error);
-    throw error;
-  }
+export const deleteNoteById = async (id: string): Promise<Note> => {
+  const response = await nextServer.delete<Note>(`/notes/${id}`);
+  return response.data;
 };
 
-// 👤 User Auth (CSR)
-export const registerUser = async (data: RegisterRequest) => {
-  const res = await nextServer.post<UserLogin>('/auth/register', data);
+export const getSingleNote = async (id: string): Promise<Note> => {
+  const response = await nextServer.get<Note>(`/notes/${id}`);
+  return response.data;
+};
+
+export const register = async (data: LoginRequest) => {
+  const res = await nextServer.post<User>("/auth/register", data);
   return res.data;
-};  
-  // catch (error) {
-  //   console.error('Error registering user:', error);
-  //   throw error;
-  // }
+};
 
+export const login = async (data: LoginRequest) => {
+  const response = await nextServer.post<User>("/auth/login", data);
+  return response.data;
+};
 
-export const loginUser = async (data: AuthData): Promise<UserLogin> => {
-  try {
-    const res = await nextServer.post<UserLogin>('/auth/login', data);
-    return res.data;
-  } catch (error) {
-    console.error('Error logging in user:', error);
-    throw error;
-  }
+type CheckSessionRequest = {
+  success: boolean;
+};
+
+export const checkSession = async () => {
+  const res = await nextServer.get<CheckSessionRequest>("/auth/session");
+  return res.data.success;
+};
+
+export const getMe = async () => {
+  const { data } = await nextServer.get<User>("/users/me");
+  return data;
+};
+
+export const updateMe = async (user: Pick<User, "username">) => {
+  const { data } = await nextServer.patch<User>("/users/me", user);
+  return data;
 };
 
 export const logout = async (): Promise<void> => {
-  try {
-    await nextServer.post('/auth/logout');
-  } catch (error) {
-    console.error('Error logging out:', error);
-    throw error;
-  }
-};
-
-export const getMe = async (): Promise<UserLogin> => {
-  try {
-    const res = await nextServer.get<UserLogin>('/users/me');
-    return res.data;
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    throw error;
-  }
-};
-
-export const updateUser = async (payload: UpdateUserRequest) => {
-  const res = await nextServer.patch<UserLogin>('/users/me', payload);
-  return res.data;
-}; 
-
-// 🔐 Session check
-export const checkSession = async (): Promise<UserLogin | null> => {
-  try {
-    const res = await nextServer.get<UserLogin>('/auth/session');
-    return res.data;
-  } catch (error) {
-    console.error('Session check failed:', error);
-    return null;
-  }
+  await nextServer.post("/auth/logout");
 };

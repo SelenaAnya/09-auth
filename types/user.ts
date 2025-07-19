@@ -1,11 +1,6 @@
-
-export interface AuthData {
-    email: string;
-    password: string;
-}
-
-export interface UserLogin {
-    username: string;
-    email: string;
-    avatar?: string; // Зробити необов'язковим
+export interface User {
+  id: string;
+  email: string;
+  username?: string;
+  avatar: string;
 }

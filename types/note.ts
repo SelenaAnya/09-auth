@@ -4,11 +4,23 @@ export interface Note {
   content: string;
   createdAt: string;
   updatedAt: string;
-  tag: string;
+  tag: Tag;
 }
 
 export interface NewNoteData {
   title: string;
-  content: string;
-  tag: string;
+  content?: string;
+  tag: Tag;
 }
+
+export type Tag = "Todo" | "Work" | "Personal" | "Meeting" | "Shopping";
+
+export interface NotesResponse {
+  notes: Note[];
+  totalPages: number;
+}
+
+export type Category = {
+  id: number;
+  name: string;
+};

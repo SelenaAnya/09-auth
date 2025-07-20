@@ -1,4 +1,3 @@
-// модальне вікно яке відкривається при створенні нотатки
 "use client";
 
 import React, { useEffect, useState } from "react";

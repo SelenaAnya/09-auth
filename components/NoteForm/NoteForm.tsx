@@ -1,4 +1,3 @@
-// форма створення нотатки
 "use client";
 
 import css from "./NoteForm.module.css";

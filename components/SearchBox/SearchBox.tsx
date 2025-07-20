@@ -1,4 +1,4 @@
-// текстове поле для пошуку по колекції
+
 import css from "./SearchBox.module.css";
 
 interface SearchBoxProps {

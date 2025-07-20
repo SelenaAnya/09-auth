@@ -1,4 +1,4 @@
-import css from "./Footer.module.css";
+aimport css from "./Footer.module.css";
 
 export default function Footer() {
   return (
@@ -6,11 +6,11 @@ export default function Footer() {
       <div className={css.content}>
         <p>© {new Date().getFullYear()} NoteHub. All rights reserved.</p>
         <div className={css.wrap}>
-          <p>Developer: Anzhela Adannikova</p>
+          <p>Developer: </p>
           <p>
             Contact us:{" "}
-            <a href="mailto: anzhelaadannikova@gmail.com">
-              anzhelaadannikova@gmail.com
+            <a href="mailto: selena.anya@gmail.com">
+              selena.anya@gmail.com
             </a>
           </p>
         </div>

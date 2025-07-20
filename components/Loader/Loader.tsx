@@ -3,7 +3,9 @@ import css from "./Loader.module.css";
 function Loader() {
   return (
     <>
-      <p className={css.text}>Loading, please wait...</p>
+      <div className={css.loaderFour} data-testid="loader-four">
+        <div className={css.loaderFour__preloader} data-testid="loader-four__preloader"></div>
+      </div>
     </>
   );
 }
